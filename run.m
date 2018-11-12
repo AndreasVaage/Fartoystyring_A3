@@ -23,8 +23,15 @@
 % the assignment. The north position is given in the first row and the east
 % position in the second row. 
 
+%% System information
+L_pp = 304.8; % [m]
+delta_max = deg2rad(25); % [deg]
+n_max = (85*2*pi)/60; % [rad/s]
 
-%%
+
+
+
+%% Simulation
 tstart=0;           % Sim start time
 tstop=10000;        % Sim stop time
 tsamp=10;           % Sampling time for how often states are stored. (NOT ODE solver time step)
@@ -36,3 +43,18 @@ r0=0;               % Inital yaw rate
 c=0;                % Current on (1)/off (0)
 
 sim MSFartoystyring % The measurements from the simulink model are automatically written to the workspace.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
