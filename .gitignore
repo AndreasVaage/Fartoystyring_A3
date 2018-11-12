@@ -30,5 +30,6 @@ octave-workspace
 # Simulink slxc
 *.slxc
 *.slx.bak
+*.slx.r2016a
 
 .MATLABDriveTag
