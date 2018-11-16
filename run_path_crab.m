@@ -24,7 +24,8 @@
 % position in the second row. 
 
 clc
-clear
+clear all
+close all
 %close all
 
 %% System information
@@ -37,10 +38,29 @@ psi_d = deg2rad(10); % From earlier task.
 %% System parameters
 load('WP.mat');
 
+
+T = 150;
+K = (deg2rad(0.1729) - deg2rad(-0.09))/deg2rad(15);
+
+% Choose
+w_b = 0.006;
+zeta = 2;
+K_m = 0;
+
+m = T / K;
+d = 1/K;
+k = 0;
+
+% Tuning
+w_n = 1/(sqrt(1 - 2*zeta^2 + sqrt(4*zeta^4 - 4*zeta^2 + 2))) * w_b;
+K_p = (m+K_m)*w_n^2 - k;
+K_d = 2*zeta*w_n*(m + K_m) - d;
+K_i = w_n / 10 * K_p; 
+
 %% Simulation
 tstart=0;           % Sim start time
 tstop=3000;        % Sim stop time
-tsamp=10; %10          % Sampling time for how often states are stored. (NOT ODE solver time step)
+tsamp=20; %10          % Sampling time for how often states are stored. (NOT ODE solver time step)
                 
 p0=[1000; 700];      % Initial position (NED)
 v0=[6.63 0]';       % Initial velocity (body)
