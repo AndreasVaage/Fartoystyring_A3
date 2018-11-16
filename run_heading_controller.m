@@ -32,28 +32,48 @@ L_pp = 304.8; % [m]
 delta_max = deg2rad(25); % [deg]
 n_max = (85*2*pi)/60; % [rad/s]
 
-delta_c_step = deg2rad(1);
+% References
 T_step = 3000;
-psi_d0 = deg2rad(90);
+psi_d0 = deg2rad(15);
 psi_d_A = 0.4;
 psi_d_w = 0.004;
 
+%% Tuning
+T = 150;
+K = (deg2rad(0.1729) - deg2rad(-0.09))/deg2rad(15);
+
+% Choose
+w_b = 0.006;
+zeta = 2;
+K_m = 0;
+
+m = T / K;
+d = 1/K;
+k = 0;
+
+% Tuning
+w_n = 1/(sqrt(1 - 2*zeta^2 + sqrt(4*zeta^4 - 4*zeta^2 + 2))) * w_b;
+K_p = (m+K_m)*w_n^2 - k;
+K_d = 2*zeta*w_n*(m + K_m) - d;
+K_i = w_n / 10 * K_p; 
+
+%K_p = 0*K_p;
+%K_i = 0*K_i;
+%K_d = 0*K_d;
+
+
 %% Simulation
 tstart=0;           % Sim start time
-tstop=1000;        % Sim stop time
+tstop=10000;        % Sim stop time
 tsamp=1; %10          % Sampling time for how often states are stored. (NOT ODE solver time step)
                 
 p0=zeros(2,1);      % Initial position (NED)
 v0=[6.63 0]';       % Initial velocity (body)
 psi0=0;             % Inital yaw angle
 r0=0;               % Inital yaw rate
-c=0;                % Current on (1)/off (0)
+c=1;                % Current on (1)/off (0)
 
 sim MSFartoystyring_heading_controller % The measurements from the simulink model are automatically written to the workspace.
-
-
-
-
 
 
 
@@ -88,8 +108,17 @@ plot(t, rad2deg(delta_c));
 plot(t, rad2deg(ones(1,length(t))*delta_max));
 plot(t, rad2deg(-ones(1,length(t))*delta_max));
 xlabel('time [s]')
-ylabel('yaw rate [deg/s]')
+ylabel('Rudder angle input [deg]')
 legend({'$\delta_c$', '$\delta_{max}$', '$-\delta_{max}$'}, 'Interpreter','latex')
+grid on
+
+figure()
+hold on
+plot(t, v(:,1));
+xlabel('time [s]')
+ylabel('speed [m/s]')
+legend('u')
+title('Surge speed')
 grid on
 
 
