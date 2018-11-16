@@ -34,19 +34,42 @@ n_max = (85*2*pi)/60; % [rad/s]
 
 psi_d = deg2rad(10); % From earlier task. 
 
+%% Tuning
+T = 150;
+K = (deg2rad(0.1729) - deg2rad(-0.09))/deg2rad(15);
+
+% Choose
+w_b = 0.006;
+zeta = 2;
+K_m = 0;
+
+m = T / K;
+d = 1/K;
+k = 0;
+
+% Tuning
+w_n = 1/(sqrt(1 - 2*zeta^2 + sqrt(4*zeta^4 - 4*zeta^2 + 2))) * w_b;
+K_p = (m+K_m)*w_n^2 - k;
+K_d = 2*zeta*w_n*(m + K_m) - d;
+K_i = w_n / 10 * K_p; 
+
+%K_p = 0*K_p;
+%K_i = 0*K_i;
+%K_d = 0*K_d;
+
 %% System parameters
 load('WP.mat');
 
 %% Simulation
 tstart=0;           % Sim start time
-tstop=5000;        % Sim stop time
-tsamp=1; %10          % Sampling time for how often states are stored. (NOT ODE solver time step)
+tstop=6000;        % Sim stop time
+tsamp=10; %10          % Sampling time for how often states are stored. (NOT ODE solver time step)
                 
 p0=[1000; 700];      % Initial position (NED)
 v0=[6.63 0]';       % Initial velocity (body)
-psi0=deg2rad(-135);             % Inital yaw angle
+psi0=deg2rad(60);             % Inital yaw angle
 r0=0;               % Inital yaw rate
-c=0;                % Current on (1)/off (0)
+c=1;                % Current on (1)/off (0)
 
 sim MSFartoystyring_path % The measurements from the simulink model are automatically written to the workspace.
 
@@ -58,6 +81,8 @@ sim MSFartoystyring_path % The measurements from the simulink model are automati
 
 
 %% Figures
+pathplotter(p(:,1), p(:,2), psi, tsamp, 1, tstart, tstop, 0, WP);
+
 figure()
 hold on
 plot(t, rad2deg(psi));
@@ -85,8 +110,9 @@ plot(t, rad2deg(delta_c));
 plot(t, rad2deg(ones(1,length(t))*delta_max));
 plot(t, rad2deg(-ones(1,length(t))*delta_max));
 xlabel('time [s]')
-ylabel('yaw rate [deg/s]')
+ylabel('rudder angle input [deg]')
 legend({'$\delta_c$', '$\delta_{max}$', '$-\delta_{max}$'}, 'Interpreter','latex')
+ylim([-50 50])
 grid on
 
 figure()
@@ -99,15 +125,15 @@ legend({'$u$','$u_d$'}, 'Interpreter', 'latex')
 grid on
 title('Surge speed')
 
-figure()
-hold on;
-plot(p(:,2), p(:,1));
-plot(WP(2,:), WP(1,:), '-*');
-xlabel('y [m]')
-ylabel('x [m]')
-legend({'Vessel path','Waypoints'}, 'Interpreter', 'latex')
-grid on
-title('Path')
+% figure()
+% hold on;
+% plot(p(:,2), p(:,1));
+% plot(WP(2,:), WP(1,:), '-*');
+% xlabel('y [m]')
+% ylabel('x [m]')
+% legend({'Vessel path','Waypoints'}, 'Interpreter', 'latex')
+% grid on
+% title('Path')
 
 
 
